@@ -10,4 +10,5 @@ def create_driver_instance(driver_path = "./chromedriver/chromedriver.exe"):
 	return webdriver.Chrome(executable_path=driver_path, options=chrome_options)
 
 driver = create_driver_instance()
+# i'm using this for testoting purposes only
 driver.get('https://google.com')
