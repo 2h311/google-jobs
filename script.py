@@ -1,4 +1,7 @@
+import logging
 import os
+import random
+import time
 
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
@@ -38,8 +41,20 @@ def click_search_button_element():
 	'''
 	click_helper('button[aria-label="Search"]')
 
+def activate_nap_mode():
+	'''
+	this function sleeps the bot for a random number of seconds
+	'''
+	time_to_sleep_for = random.randrange(5)
+	logging.info(f"Activating Nap Mode for {time_to_sleep_for} seconds")
+	time.sleep(time_to_sleep_for)
+
+logging.basicConfig(format="[+] %(message)s", level=logging.INFO)
 driver = create_driver_handler()
-search_word = "singtel"
+
+# TODO: we need to fetch the keywords from a file
+search_word = "singtel Tao Payoh"
+
 search_page_url = "https://www.google.com/search?q=google+jobs"
 driver.get(search_page_url)
 
@@ -51,9 +66,18 @@ more_jobs_element = anchor_tag_elements[-1]
 google_jobs_url = more_jobs_element.get_attribute('href')
 driver.get(google_jobs_url)
 
-# search form element
-# google_jobs_search_form_element = driver.find_element_by_css_selector('form[role="search"]')
-# input_element = google_jobs_search_form_element.find_element_by_css_selector("input")
 # input the search word into the input element
+clear_search_input_element()
 driver.find_element_by_id("hs-qsb").send_keys(search_word)
+activate_nap_mode()
+click_search_button_element()
 
+# TODO: sift through the jobs cards one afte the other and fetch the needed data.
+# TODO: create a dataclass which will be used to pipe the fetched to the writer
+
+# These are my needed information
+# Date & time of search
+# Keyword
+# Publisher
+# Result_Title
+# Date/Time
