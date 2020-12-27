@@ -73,7 +73,12 @@ activate_nap_mode()
 click_search_button_element()
 
 # TODO: sift through the jobs cards one afte the other and fetch the needed data.
+# cards = driver.find_elements_by_tag_name('li')
+# cards[-1].location_once_scrolled_into_view
+
+
 # TODO: create a dataclass which will be used to pipe the fetched to the writer
+
 
 # These are my needed information
 # Date & time of search
