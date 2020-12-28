@@ -8,6 +8,7 @@ from selenium.webdriver.chrome.options import Options
 
 import locators 
 from timekeeper import TimeKeeper
+from piper import DataClassExcelFields
 
 def set_windows_title():
 	'''
@@ -101,3 +102,13 @@ datetime_of_search = timekeeper.keep_search_datetime()
 result_title = card.find_element_by_css_selector(GoogleJobsPageLocators.result_title).text
 date_and_time = card.find_element_by_css_selector(GoogleJobsPageLocators.date_and_time).text
 publisher = card.find_element_by_css_selector(GoogleJobsPageLocators.publisher).text
+
+data_to_send_to_writer = DataClassExcelFields(
+	datetime_of_search=datetime_of_search, 
+	date_and_time=date_and_time,
+	keyword=search_word,
+	publisher=publisher,
+	result_title=result_title,
+)
+
+print(data_to_send_to_writer)
