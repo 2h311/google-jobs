@@ -1,16 +1,106 @@
+import datetime
 import logging
 import os
 import pprint
 import random
 import time
+from pathlib import Path
 
+from openpyxl import Workbook
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 
-import locators 
-from timekeeper import TimeKeeper
-from xlsxwriter import XlsxWriter
-from filereader import FileReader
+class GoogleSearchPageLocators:
+	anchor_tags = 'g-card a'
+
+class GoogleJobsPageLocators:
+	clear_search_button = 'button[aria-label="Clear search"]'
+	search_button = 'button[aria-label="Search"]'
+	search_input_element = "hs-qsb"
+	jobs_cards = 'li'
+	result_title = '[role="heading"]'
+	date_and_time = '[class*=KKh3md] span'
+	publisher = '[class*=vNEEBe]'
+
+class TimeKeeper:
+	@property
+	def now(self):
+		'''
+		return the current correct date and time using the format specified
+		'''
+		return f'{datetime.datetime.now():%d-%b-%Y T%I:%M}'
+
+class Writer:
+	def __init__(self, filename):
+		self.filename = filename
+
+class XlsxWriter(Writer):
+	def __init__(self, filename='output'):
+		super().__init__(filename)
+		self.file_type = '.xlsx'
+		self.fields = [
+						"Date & time of search",
+						"Keyword",
+						"Publisher",
+						"Result_Title",
+						"Date/Time",
+					]
+		self.check_filename()
+		self.open_an_active_sheet()
+		self.write_sheet_headers()
+
+	def __repr__(self):
+		return self.filename
+
+	def check_filename(self):
+		if self.file_type not in self.filename:
+			self.filename += self.file_type
+	
+	def open_an_active_sheet(self):
+		self.workbook = Workbook()
+		self.sheet = self.workbook.active
+
+	def close_workbook(self):
+		self.workbook.save(filename=self.filename)
+
+	def write_sheet_headers(self):
+		self.sheet['A1'].value = self.fields[0]
+		self.sheet['B1'].value = self.fields[1]
+		self.sheet['C1'].value = self.fields[2]
+		self.sheet['D1'].value = self.fields[3]
+		self.sheet['E1'].value = self.fields[4]
+
+	def write_to_sheet(self, dictionary):
+		try:
+			value = self.sheet.max_row + 1
+			self.sheet[f'A{value}'].value = dictionary.get("Date & time of search")
+			self.sheet[f'B{value}'].value = dictionary.get("Keyword")
+			self.sheet[f'C{value}'].value = dictionary.get("Publisher")
+			self.sheet[f'D{value}'].value = dictionary.get("Result_Title")
+			self.sheet[f'E{value}'].value = dictionary.get("Date/Time")
+		finally:
+			self.close_workbook()
+
+class FileReader:	
+	@staticmethod
+	def accept_filename():
+		filename = input("\aEnter a valid filename: ")
+		return filename
+
+	@property
+	def file_content(self):
+		filename = self.accept_filename()
+		path_object = Path(filename)
+		if path_object.exists():
+			print(f"{filename} found...")
+			with path_object.open() as file_handler:
+				content = [ line.strip() for line in file_handler.readlines() ]
+				if content:
+					return content
+				else:
+					print("\aNo keywords in the file specified")
+		else:
+			print("\aYou might have to check the file name.")
 
 def set_windows_title():
 	'''
@@ -82,7 +172,7 @@ def fish_out_needed_data(card):
 
 def scroll_bar_solution(job_cards):
 	# cap is the highest number of data the bot will fetch
-	cnt, o, cap = 1, 10, 100
+	cnt, o, cap = 1, 10, 100000
 
 	while True:
 
@@ -137,12 +227,13 @@ if __name__ == "__main__":
 
 	# these are our helper classes
 	timekeeper = TimeKeeper()
-	excel_writer = XlsxWriter(f'output.{timekeeper.now}')
-	GoogleSearchPageLocators = locators.GoogleSearchPageLocators
-	GoogleJobsPageLocators = locators.GoogleJobsPageLocators
+	excel_writer = XlsxWriter()
 
 	load_google_jobs_page()
 	if (keywords := FileReader().file_content):
 		for keyword in keywords:
 			print(f"Working on keyword - {keyword}")
 			keyword_jobsearch(keyword)
+	
+	driver.quit()
+	input("\aPress Enter to quit...")
