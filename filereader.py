@@ -4,14 +4,14 @@ else returns an error.
 '''
 from pathlib import Path
 
-class FileReader:
-	@staticmethod
-	def accept_filename():
-		filename = input("Enter a valid filename: ")
-		return filename
+class FileReader:	
+	# @staticmethod
+	# def accept_filename():
+		# filename = input("Enter a valid filename: ")
+		# return filename
 
 	def grab_content_of_file(self):
-		filename = self.accept_filename()
+		filename = 'keywords.txt'
 		path_object = Path(filename)
 		if path_object.exists():
 			print(f"{filename} found...")
