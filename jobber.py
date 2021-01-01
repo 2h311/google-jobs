@@ -172,7 +172,7 @@ def fish_out_needed_data(card):
 
 def scroll_bar_solution(job_cards):
 	# cap is the highest number of data the bot will fetch
-	cnt, o, cap = 1, 10, 100000
+	cnt, o, cap = 1, 10, 50
 
 	while True:
 
