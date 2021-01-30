@@ -1,20 +1,18 @@
 # This is our writer for xlsxwriter
+import string
 
 from openpyxl import Workbook
 
-from writer import Writer 
+class Writer:
+	def __init__(self, filename):
+		self.filename = filename
 
 class XlsxWriter(Writer):
-	def __init__(self, filename='output'):
+	def __init__(self, fields, filename='output'):
 		super().__init__(filename)
+		self.letters = string.ascii_uppercase[:len(self.fields)]
 		self.file_type = '.xlsx'
-		self.fields = [
-						"Date & time of search",
-						"Keyword",
-						"Publisher",
-						"Result_Title",
-						"Date/Time",
-					]
+		self.fields = fields 
 		self.check_filename()
 		self.open_an_active_sheet()
 		self.write_sheet_headers()
@@ -34,19 +32,22 @@ class XlsxWriter(Writer):
 		self.workbook.save(filename=self.filename)
 
 	def write_sheet_headers(self):
-		self.sheet['A1'].value = self.fields[0]
-		self.sheet['B1'].value = self.fields[1]
-		self.sheet['C1'].value = self.fields[2]
-		self.sheet['D1'].value = self.fields[3]
-		self.sheet['E1'].value = self.fields[4]
+		for letter, field in zip(self.letters, self.fields):
+			self.sheet[letter + str(self.sheet.max_row)].value = field
 
 	def write_to_sheet(self, dictionary):
 		try:
 			value = self.sheet.max_row + 1
-			self.sheet[f'A{value}'].value = dictionary.get("Date & time of search")
-			self.sheet[f'B{value}'].value = dictionary.get("Keyword")
-			self.sheet[f'C{value}'].value = dictionary.get("Publisher")
-			self.sheet[f'D{value}'].value = dictionary.get("Result_Title")
-			self.sheet[f'E{value}'].value = dictionary.get("Date/Time")
+			for letter, field in zip(self.letters, self.fields):
+				self.sheet[letter + str(self.sheet.max_row)].value = dictionary.get(field)
 		finally:
 			self.close_workbook()
+
+if __name__ == "__main__":
+	fields = [
+		"Date & time of search",
+		"Keyword",
+		"Publisher",
+		"Result_Title",
+		"Date/Time",
+	]
